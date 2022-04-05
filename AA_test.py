@@ -5,18 +5,18 @@ from AA import sbst
 class AATest(unittest.TestCase):
     def setUp(self):
         self.AA = sbst()
-
-class Test_add(AATest):
-    def test_add_val(self):
+    def test_addval(self):
         self.AA.add(12)
-        self.assertEqual(self.AA.add(12), None)
-    def test_add_negval(self):
+        self.assertEqual(self.AA.root.val, 12)
+    def test_addnval_neg(self):
         self.AA.add(-12)
-        self.assertEqual(self.AA.add(-12), None)
-    def test_add_floatval(self):
+        self.assertEqual(self.AA.root.val, -12)
+    def test_addval_float(self):
         self.AA.add(12.3)
-        self.assertEqual(self.AA.add(-12), None)
-
+        self.assertEqual(self.AA.root.val, 12.3)
+    def test_addval_none(self):
+        self.AA.add(None)
+        self.assertEqual(self.AA.root.val, None)
 
 if __name__ == '__main__':
-    unittest.main()
+    pass
