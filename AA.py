@@ -289,4 +289,14 @@ class sbst():
             node.level = should_be
             if should_be < (node.right.level if node.right else 0):
                 node.right.level = should_be
-if __name__ == '__main__'
+if __name__ == '__main__':
+    tree = sbst()
+    tree.add(12)
+    tree.add(21)
+    tree.add(10)
+    tree.add(8)
+    tree.add(2)
+    tree.add(16)
+    tree.remove(12)
+    tree._delete(tree, 10,)
+    print('[',*[v for v in tree.forward_from(2)],']')
