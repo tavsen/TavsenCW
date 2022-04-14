@@ -7,10 +7,7 @@ class DataBase:
 
         self.db = sqlite3.connect(f"{name}")
         sql = self.db.cursor()
-        sql.execute("""CREATE TABLE IF NOT EXISTS AATree ( 
-            key integer, 
-            data TEXT
-        )""")
+        sql.execute("""CREATE TABLE IF NOT EXISTS AATree (key integer, data TEXT)""")
         self.db.commit()
         sql.close()
 
@@ -27,9 +24,9 @@ class DataBase:
         cur.execute("DELETE from AATree")
         self.db.commit()
 
-    def db_insert(self, key, data):
+    def db_insert(self, val):
         cur = self.db.cursor()
-        cur.execute("INSERT INTO AATree VALUES (?,?)", (key, data))
+        cur.execute("INSERT INTO AATree VALUES (?)", (val))
         self.db.commit()
         cur.close()
 
