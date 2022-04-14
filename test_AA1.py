@@ -23,6 +23,11 @@ class AATest(unittest.TestCase):
         self.AA.add(23)
         self.assertEqual(self.AA.root.val, 12)
         self.assertEqual(self.AA.root.right.val, 23)
+        
+    def test_remove_last_val(self):
+        self.AA.add(12)
+        self.AA.remove(12)
+        self.assertEqual(self.AA.root, None)
 
 
 if __name__ == '__main__':
