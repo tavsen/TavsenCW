@@ -5,7 +5,7 @@ import sys
 import logging
 
 logging.basicConfig(level=logging.INFO)
-# logging.disable(logging.INFO)
+#logging.disable(logging.INFO)
 
 
 class MainWindow(QMainWindow):
@@ -20,15 +20,12 @@ class MainWindow(QMainWindow):
         self.Facade = Facade
         super().__init__()
         self.ui = uic.loadUi("forms/main_menu.ui", self)
-        self.window().setWindowTitle(
-            "Реализация и моделирование структуры данных словарь на основе двоичного дерева поиска. Илюхин")
+        self.window().setWindowTitle("Andrea Anderson tree. Zvarich")
         self.scene = QGraphicsScene(0, 0, 800, 600)
         self.ui.canvas.setScene(self.scene)
-
         self.ui.btn_add.clicked.connect(self.open_dialog_input)
         self.ui.btn_delete.clicked.connect(self.open_dialog_delete)
         self.ui.btn_save.clicked.connect(lambda: self.Facade.save_data())
-        self.ui.btn_contains.clicked.connect(self.open_dialog_search)
 
         self.draw_tree()
 
@@ -95,25 +92,21 @@ class MainWindow(QMainWindow):
         dialog.setWindowTitle("Поиск элемента")
         dialog.show()
 
-    def draw_el(self, x, y, key, data, left=None, height=0):
+    def draw_el(self, x, y, val, left=None, height=0):
         """
         отрисовка круга, текса (key, data) и линии (ветки)
         :param x: кардината отрисовки элементов
         :param y: кардината отрисовки элементов
-        :param key: ключ, который нужно вывести
-        :param data: данные, которые нужно вывести
+        :param val: данные, которые нужно вывести
         :param left: левый это или правый элемнта в дереве (для отрисовки линии - ветки)
         :param height: высота ветки (если бы это был прямой треугольник)
         :return: None
         """
         self.scene.addEllipse(x, y, 40, 40)
 
-        long = len(str(key))
-        text = self.scene.addText(f"{key}")
-        text.moveBy(x + 17 - long * 3, y + 10)
 
-        long = len(str(data))
-        text = self.scene.addText(f"{data}")
+        long = len(str(val))
+        text = self.scene.addText(f"{val}")
         text.moveBy(x + 17 - long * 3, y + 40)
 
         if left == 1:
@@ -132,9 +125,9 @@ class MainWindow(QMainWindow):
         x = 50 * (2 ** path[0]) + 50
         y = 150
         h = 50
-        height = h * path[0] + h  # высота ветки (если бы это был прямой треугольник)
-        self.branch_len = (x - 50) // 2  # ширина ветки (если бы это был прямой треугольник)
-        layer = 0  # слой дерева
+        height = h * path[0] + h
+        self.branch_len = (x - 50) // 2
+        layer = 0
         frame_x = 0
         for val in range(1, path[0] + 2):
             frame_x += h * val
@@ -186,7 +179,6 @@ class DialogSearch(QDialog):
         """
         super(DialogSearch, self).__init__(parent)
         self.Facade = Facade
-        self.ui = uic.loadUi("forms/search.ui", self)
         self.ui.btn_find.clicked.connect(self.search)
 
     def search(self):
@@ -300,9 +292,7 @@ class DialogInput(QDialog):
                 self.parent().draw_tree()
                 logging.log(logging.INFO, 'заполните поля')
             except RecursionError:
-
-                self.ui.label_info.setText(f"Дерево слишком высокое!\nПопробуйте ввести ключ для другого поддерева.")
-
+                self.ui.label_info.setText(f"Дерево слишком высокое!")
         elif self.ui.data_input.text() == '':
             self.ui.label_info.setText(f"Заполните поле!")
             logging.log(logging.INFO, 'заполните поля')
@@ -330,6 +320,7 @@ class Builder:
         :return: None
         """
         self.Facade = Facade()
+
 
     def create_gui(self):
         """
