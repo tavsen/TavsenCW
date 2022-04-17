@@ -24,10 +24,11 @@ class AATest(unittest.TestCase):
         self.assertEqual(self.AA.root.val, 12)
         self.assertEqual(self.AA.root.right.val, 23)
 
-    def test_remove_last_val(self):
+    def test_remove_val(self):
         self.AA.add(12)
-        self.AA.remove(12)
-        self.assertEqual(self.AA.root, None)
+        self.AA.add(23)
+        self.AA.remove(23)
+        self.assertEqual(self.AA.root.val, 12)
 
     def test_remove_val(self):
         self.AA.add(12)
@@ -57,11 +58,11 @@ class AATest(unittest.TestCase):
         self.AA.min()
         self.assertEqual(self.AA.min(), 12)
 
-    def test_forward_from(self):
-        self.AA.add(12)
-        self.AA.add(23)
-        self.AA.add(34)
-        self.AA.forward_from(12)
+    def test_add_from(self):
+        self.AA.addfrom(i ** 3 for i in range(2, 4))
+        self.assertEqual(self.AA.root.val, 8)
+        self.assertEqual(self.AA.root.right.val, 27)
+
 
 
 if __name__ == '__main__':
