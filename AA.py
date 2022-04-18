@@ -154,6 +154,58 @@ class sbst():
                     new_curr = curr.parent
                 curr = new_curr
 
+    def backward_from(self, start=None, inclusive=True, \
+                      stop=None, stop_incl=False):
+        node = self.root
+        curr = None
+        while node:
+            cmp = 1 if start == None else self.comp_f(start, node.getval())
+            if cmp == 0:
+                if inclusive:
+                    curr = node
+                    node = None
+                else:
+                    node = node.left
+            elif cmp > 0:
+                curr = node
+                node = node.right
+            else:
+                node = node.left
+        while curr:
+            if curr.len > 0:
+                if stop != None:
+                    cmp = self.comp_f(curr.getval(), stop)
+                    if cmp < 0 or cmp == 0 and not stop_incl:
+                        return
+                if curr.is_array:
+                    i = 0
+                    while i < curr.len:
+                        yield curr.val[i]
+                        i += 1
+                else:
+                    yield curr.val
+            # step backward
+            if curr.left:
+                curr = curr.left
+                while curr.right:
+                    curr = curr.right
+            else:
+                new_curr = curr.parent
+                while new_curr and curr.direction == 'L':
+                    curr = new_curr
+                    new_curr = curr.parent
+                curr = new_curr
+
+    def min(self, limit=None, inclusive=True):
+        for val in self.forward_from(limit, inclusive):
+            return val
+        return None
+
+    def max(self, limit=None, inclusive=True):
+        for val in self.backward_from(limit, inclusive):
+            return val
+        return None
+
     def nodes_list(self):
         return self.nodes_list(self.root)
 
@@ -184,7 +236,7 @@ class sbst():
             if node.len == 0:
                 if node.left == None and node.right == None:
                     return None
-                elif node.left == None:  
+                elif node.left == None:
                     NN = node.right
                     while NN.left:
                         NN = NN.left
@@ -231,26 +283,17 @@ class sbst():
         return node
 
     def decrease_level(self, node):
-        should_be = max(node.left.level if node.left else 0,node.right.level if node.right else 0) + 1
+        should_be = max(node.left.level if node.left else 0, \
+                        node.right.level if node.right else 0) + 1
         if should_be < node.level:
             node.level = should_be
             if should_be < (node.right.level if node.right else 0):
                 node.right.level = should_be
-
 if __name__ == '__main__':
     tree = sbst()
     tree.add(12)
-    tree.add(12)
-    tree.add(12)
-    tree.add(12)
     tree.add(165)
-    tree.add(37)
-    tree.add(120)
-    tree.add(89)
-    tree.add(72)
-    tree.add(36)
-    tree.add(4)
     tree.add(13)
-    tree.add(1)
+    tree._skew(None)
     tree.remove(12, True)
     print('[',*[v for v in tree.forward_from(1)],']')
