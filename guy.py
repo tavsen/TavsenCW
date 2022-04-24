@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QGraphicsScene, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QListWidgetItem, QMessageBox
 from PyQt5 import uic
 from Facade import Facade
 import sys
@@ -14,13 +14,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = uic.loadUi("forms/main_menu.ui", self)
         self.window().setWindowTitle("Andrea Anderson tree. Zvarich")
-        self.scene = QGraphicsScene(0, 0, 800, 600)
-        self.ui.canvas.setScene(self.scene)
         self.ui.btn_add.clicked.connect(self.open_dialog_input)
         self.ui.btn_delete.clicked.connect(self.open_dialog_delete)
         self.ui.btn_save.clicked.connect(lambda: self.Facade.save_data())
-
-
     def closeEvent(self, event):
         if self.Facade.data_wait_for_save:
             logging.log(logging.INFO, ' You have unsaved Data')
@@ -60,7 +56,6 @@ class DialogDelete(QDialog):
         self.Facade = Facade
         self.ui = uic.loadUi("forms/delete.ui", self)
         self.ui.btn_remove.clicked.connect(self.delete)
-        self.ui.btn_remove_all.clicked.connect(lambda: self.del_all())
 
     def action(self, button):
         if button.text() == "OK":
@@ -85,7 +80,15 @@ class DialogInput(QDialog):
         self.Facade = Facade
         super(DialogInput, self).__init__(val)
         self.ui = uic.loadUi("forms/input.ui", self)
-
+        self.ui.btn_insert.clicked.connect(self.addact)
+        self.ui.btn_insert.clicked.connect(self.showval)
+    def addact(self):
+         val = self.ui.data_add.text()
+         self.Facade.add_value(int(val))
+    def showval(self):
+        self.ui.data_add.text()
+        self.Facade.bypass_tree(1)
+        self.list.addItems(self.bypass_tree)
 
 class Builder:
     def __init__(self):
