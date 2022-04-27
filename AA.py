@@ -55,6 +55,7 @@ class sbst():
         return self._len
     def add(self, val):
         self.root = self._insert_into_node(self.root, val, None)
+        #print('added')
     def addfrom(self, source):
         for val in source:
             self.root = self._insert_into_node(self.root, val, None)
@@ -75,6 +76,14 @@ class sbst():
             return L
         else:
             return node
+
+    def __search_tree_helper(self, node, key ):
+        if node == None or key == node.key:
+            return node
+        if key < node.key:
+            return self.__search_tree_helper(node.left, key)
+        return self.__search_tree_helper(node.right, key)
+
     def _split(self, node):
         if node == None or node.right == None or node.right.right == None:
             return node
@@ -154,58 +163,6 @@ class sbst():
                     new_curr = curr.parent
                 curr = new_curr
 
-    def backward_from(self, start=None, inclusive=True, \
-                      stop=None, stop_incl=False):
-        node = self.root
-        curr = None
-        while node:
-            cmp = 1 if start == None else self.comp_f(start, node.getval())
-            if cmp == 0:
-                if inclusive:
-                    curr = node
-                    node = None
-                else:
-                    node = node.left
-            elif cmp > 0:
-                curr = node
-                node = node.right
-            else:
-                node = node.left
-        while curr:
-            if curr.len > 0:
-                if stop != None:
-                    cmp = self.comp_f(curr.getval(), stop)
-                    if cmp < 0 or cmp == 0 and not stop_incl:
-                        return
-                if curr.is_array:
-                    i = 0
-                    while i < curr.len:
-                        yield curr.val[i]
-                        i += 1
-                else:
-                    yield curr.val
-            # step backward
-            if curr.left:
-                curr = curr.left
-                while curr.right:
-                    curr = curr.right
-            else:
-                new_curr = curr.parent
-                while new_curr and curr.direction == 'L':
-                    curr = new_curr
-                    new_curr = curr.parent
-                curr = new_curr
-
-    def min(self, limit=None, inclusive=True):
-        for val in self.forward_from(limit, inclusive):
-            return val
-        return None
-
-    def max(self, limit=None, inclusive=True):
-        for val in self.backward_from(limit, inclusive):
-            return val
-        return None
-
     def nodes_list(self):
         return self.nodes_list(self.root)
 
@@ -220,6 +177,7 @@ class sbst():
 
         if val != None:
             self.root = self._delete(val, self.root, allcopies)
+    print('Item removed')
 
     def _delete(self, val, node, allcopies):
         if node == None:
@@ -283,17 +241,48 @@ class sbst():
         return node
 
     def decrease_level(self, node):
-        should_be = max(node.left.level if node.left else 0, \
-                        node.right.level if node.right else 0) + 1
+        should_be = max(node.left.level if node.left else 0,node.right.level if node.right else 0) + 1
         if should_be < node.level:
             node.level = should_be
             if should_be < (node.right.level if node.right else 0):
                 node.right.level = should_be
+
+    def search_element(self, val):
+        x = self.__search_tree_helper(self.root, val)
+        if x != None:
+            self.sbst.forward_from(x)
+        return x
+
+    # вывод дерева
+    def show(self):
+        self.__in_order_helper(self.root)
+
+    def bypass(self, node, long, path):
+        if node is None:
+            return path
+        else:
+            a = [node.key, '1']
+            path.append(a)
+            if node.left is not None:
+                path = self.__bypass(node.left, long + 1, path)
+                path.append([node.key, None])
+            if node.right is not None:
+                path = self.__bypass(node.right, long + 1, path)
+                path.append([node.key, None])
+            if long > path[0]:
+                path[0] = long
+            return path
+
+            # обход дерева для отрисовки
+
+    def bypass_func(self, long, path):
+        return self.bypass(self.root, long, path)
+
 if __name__ == '__main__':
     tree = sbst()
     tree.add(12)
-    tree.add(165)
-    tree.add(13)
-    tree._skew(None)
-    tree.remove(12, True)
-    print('[',*[v for v in tree.forward_from(1)],']')
+    tree.add(23)
+    tree.add(34)
+    tree.add(45)
+    tree.add(56)
+    print()
