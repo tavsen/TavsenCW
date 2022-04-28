@@ -42,6 +42,11 @@ class AastNode():
             if val == self.val:
                 self.len = 0
 
+    def bypass(self, direct=None):
+        a=sbst()
+        [v for v in a.forward_from(1)]
+        self.direct = direct
+
 
 class sbst():
     def __init__(self, comparison_func=aa_search_tree, source=None):
@@ -76,13 +81,6 @@ class sbst():
             return L
         else:
             return node
-
-    def __search_tree_helper(self, node, key ):
-        if node == None or key == node.key:
-            return node
-        if key < node.key:
-            return self.__search_tree_helper(node.left, key)
-        return self.__search_tree_helper(node.right, key)
 
     def _split(self, node):
         if node == None or node.right == None or node.right.right == None:
@@ -121,8 +119,7 @@ class sbst():
             node = self._split(node)
             return node
 
-    def forward_from(self, start=None, inclusive=True,
-                     stop=None, stop_incl=False):
+    def forward_from(self, start=None, inclusive=True, stop=None, stop_incl=False):
         node = self.root
         curr = None
         while node:
@@ -247,36 +244,35 @@ class sbst():
             if should_be < (node.right.level if node.right else 0):
                 node.right.level = should_be
 
-    def search_element(self, val):
-        x = self.__search_tree_helper(self.root, val)
-        if x != None:
-            self.sbst.forward_from(x)
-        return x
+    # def search_element(self, val):
+    #     x = self.__search_tree_helper(self.root, val)
+    #     if x != None:
+    #         self.sbst.forward_from(x)
+    #     return x
+    #
+    # # вывод дерева
+    # def show(self):
+    #     self.__in_order_helper(self.root)
+    #
+    # def bypass(self, node, long, path):
+    #     if node is None:
+    #         return path
+    #     else:
+    #         a = [node.key, '1']
+    #         path.append(a)
+    #         if node.left is not None:
+    #             path = self.__bypass(node.left, long + 1, path)
+    #             path.append([node.key, None])
+    #         if node.right is not None:
+    #             path = self.__bypass(node.right, long + 1, path)
+    #             path.append([node.key, None])
+    #         if long > path[0]:
+    #             path[0] = long
+    #         return path
+    #
+    #         # обход дерева для отрисовки
+    #
 
-    # вывод дерева
-    def show(self):
-        self.__in_order_helper(self.root)
-
-    def bypass(self, node, long, path):
-        if node is None:
-            return path
-        else:
-            a = [node.key, '1']
-            path.append(a)
-            if node.left is not None:
-                path = self.__bypass(node.left, long + 1, path)
-                path.append([node.key, None])
-            if node.right is not None:
-                path = self.__bypass(node.right, long + 1, path)
-                path.append([node.key, None])
-            if long > path[0]:
-                path[0] = long
-            return path
-
-            # обход дерева для отрисовки
-
-    def bypass_func(self, long, path):
-        return self.bypass(self.root, long, path)
 
 if __name__ == '__main__':
     tree = sbst()
@@ -285,4 +281,4 @@ if __name__ == '__main__':
     tree.add(34)
     tree.add(45)
     tree.add(56)
-    print()
+    print([v for v in tree.forward_from()])
