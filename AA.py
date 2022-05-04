@@ -42,11 +42,6 @@ class AastNode():
             if val == self.val:
                 self.len = 0
 
-    def bypass(self, direct=None):
-        a=sbst()
-        [v for v in a.forward_from(1)]
-        self.direct = direct
-
 
 class sbst():
     def __init__(self, comparison_func=aa_search_tree, source=None):
@@ -60,7 +55,7 @@ class sbst():
         return self._len
     def add(self, val):
         self.root = self._insert_into_node(self.root, val, None)
-        #print('added')
+        print('added')
     def addfrom(self, source):
         for val in source:
             self.root = self._insert_into_node(self.root, val, None)
@@ -81,7 +76,6 @@ class sbst():
             return L
         else:
             return node
-
     def _split(self, node):
         if node == None or node.right == None or node.right.right == None:
             return node
@@ -119,7 +113,8 @@ class sbst():
             node = self._split(node)
             return node
 
-    def forward_from(self, start=None, inclusive=True, stop=None, stop_incl=False):
+    def forward_from(self, start=None, inclusive=True,
+                     stop=None, stop_incl=False):
         node = self.root
         curr = None
         while node:
@@ -160,6 +155,16 @@ class sbst():
                     new_curr = curr.parent
                 curr = new_curr
 
+    def min(self, limit=None, inclusive=True):
+        for val in self.forward_from(limit, inclusive):
+            return val
+        return None
+
+    def max(self, limit=None, inclusive=True):
+        for val in self.backward_from(limit, inclusive):
+            return val
+        return None
+
     def nodes_list(self):
         return self.nodes_list(self.root)
 
@@ -174,7 +179,6 @@ class sbst():
 
         if val != None:
             self.root = self._delete(val, self.root, allcopies)
-    print('Item removed')
 
     def _delete(self, val, node, allcopies):
         if node == None:
@@ -238,47 +242,58 @@ class sbst():
         return node
 
     def decrease_level(self, node):
-        should_be = max(node.left.level if node.left else 0,node.right.level if node.right else 0) + 1
+        should_be = max(node.left.level if node.left else 0, \
+                        node.right.level if node.right else 0) + 1
         if should_be < node.level:
             node.level = should_be
             if should_be < (node.right.level if node.right else 0):
                 node.right.level = should_be
 
-    # def search_element(self, val):
-    #     x = self.__search_tree_helper(self.root, val)
-    #     if x != None:
-    #         self.sbst.forward_from(x)
-    #     return x
-    #
-    # # вывод дерева
-    # def show(self):
-    #     self.__in_order_helper(self.root)
-    #
-    # def bypass(self, node, long, path):
-    #     if node is None:
-    #         return path
-    #     else:
-    #         a = [node.key, '1']
-    #         path.append(a)
-    #         if node.left is not None:
-    #             path = self.__bypass(node.left, long + 1, path)
-    #             path.append([node.key, None])
-    #         if node.right is not None:
-    #             path = self.__bypass(node.right, long + 1, path)
-    #             path.append([node.key, None])
-    #         if long > path[0]:
-    #             path[0] = long
-    #         return path
-    #
-    #         # обход дерева для отрисовки
-    #
+    def calc_depth(self, root, current_length):
+        left = 0
+        right = 0
+        if root is None:
+            return current_length
+        if not root.left is None:
+            left = self.calc_depth(root.left, current_length + 1)
+        if not root.right is None:
+            right = self.calc_depth(root.right, current_length + 1)
+        return max(left, right)
 
+    def bp(self):
+        return self.bypass(self.root, path=[self.calc_depth(self.root, 0)])
+
+    def bypass(self, elem, long=0, path=[]):
+        """
+        Обходит дерево и записывает путь обхода в path.
+        Данная функция нужна для отрисовки дерева.
+        :param long: глубина дерева (изначально равно нулю)
+        :param path: путь обхода, а на первом месте максимальная глубина дерева
+        :return: path
+        """
+
+        if elem is None:
+            return path
+        else:
+            a = [elem.val, elem.val]
+            path.append(a)
+            if elem.left is not None:
+                path = self.bypass(elem.left, long+1, path)
+                path.append([elem.val, None])
+
+            if elem.right is not None:
+                path = self.bypass(elem.right, long+1, path)
+                path.append([elem.val, None])
+
+            if long > path[0]:
+                path[0] = long
+
+            return path
 
 if __name__ == '__main__':
     tree = sbst()
     tree.add(12)
-    tree.add(23)
-    tree.add(34)
-    tree.add(45)
-    tree.add(56)
-    print([v for v in tree.forward_from()])
+    tree.add(165)
+    tree.add(13)
+    # tree.bypass()
+    print(*[v for v in tree.forward_from(1)])
