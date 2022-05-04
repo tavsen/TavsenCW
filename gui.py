@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.INFO)
 # logging.disable(logging.INFO)
 
 #главное окно формы
-
 class MainWindow(QMainWindow):
     def __init__(self, facade):
         self.facade = facade
@@ -22,10 +21,15 @@ class MainWindow(QMainWindow):
         self.ui.btn_delete.clicked.connect(self.open_dialog_delete)
         self.ui.btn_save.clicked.connect(lambda: self.facade.save_data())
         self.ui.btn_load.clicked.connect(lambda: self.facade.load_data(self))
-        self.ui.btn_contains.clicked.connect(self.open_dialog_search)
+        self.facade.update_datas.connect(self.update)
+        # self.ui.btn_contains.clicked.connect(self.open_dialog_search)
         self.draw_tree()
 
-    #если нажали на крестик в верхнем правом углу формы
+    def update(self) -> None:
+        logging.log(logging.INFO, "update gui")
+        self.draw_tree()
+
+#если нажали на крестик в верхнем правом углу формы
     def closeEvent(self, event):
         if self.facade.data_wait_for_save:
             logging.log(logging.INFO, ' есть несохраненные данные')
@@ -74,42 +78,43 @@ class MainWindow(QMainWindow):
     #отрисовка дерева
     def draw_tree(self):
         self.scene.clear()
-        path = self.facade.bypass_tree(1)
-        x = 50 * (2 ** path[0]) + 50
-        y = 150
-        h = 50
-        height = h * path[0] + h  # высота ветки (если бы это был прямой треугольник)
-        self.branch_len = (x - 50) // 2  # ширина ветки (если бы это был прямой треугольник)
-        layer = 0  # слой дерева
-        frame_x = 0
-        for val in range(1, path[0] + 2):
-            frame_x += h * val
-        self.scene = QGraphicsScene(0, 0, x * 2 + 100, frame_x + 300)
-        logging.log(logging.INFO, f' размер холста - {x * 2 + 100}, {y * path[0] + 100}')
-        self.ui.canvas.setScene(self.scene)
-        if len(path) != 1:
-            self.draw_el(x, y, path[1][0])
-        for n in range(2, len(path)):
-            if path[n][1] is not None:
-                y += height
-                layer += 1
-                if path[n - 1][0] > path[n][0]:  # значит этот элемент левее --> вычитаем
-                    x -= self.branch_len
-                    self.draw_el(x, y, path[n][0], 1, height)
-                else:  # значит этот элемент правее --> прибавляем
-                    x += self.branch_len
-                    self.draw_el(x, y, path[n][0], 0, height)
-                self.branch_len //= 2
-                height -= h
-            else:  # возвращаемся назад
-                height += h
-                layer -= 1
-                y -= height
-                self.branch_len *= 2
-                if path[n - 1][0] < path[n][0]:
-                    x += self.branch_len
-                else:
-                    x -= self.branch_len
+        path = self.facade.get_tree()
+        if path:
+            x = 50 * (2 ** path[0]) + 50
+            y = 150
+            h = 50
+            height = h * path[0] + h  # высота ветки (если бы это был прямой треугольник)
+            self.branch_len = (x - 50) // 2  # ширина ветки (если бы это был прямой треугольник)
+            layer = 0  # слой дерева
+            frame_x = 0
+            for val in range(1, path[0] + 2):
+                frame_x += h * val
+            self.scene = QGraphicsScene(0, 0, x * 2 + 100, frame_x + 300)
+            logging.log(logging.INFO, f' размер холста - {x * 2 + 100}, {y * path[0] + 100}')
+            self.ui.canvas.setScene(self.scene)
+            if len(path) != 1:
+                self.draw_el(x, y, path[1][0])
+            for n in range(2, len(path)):
+                if path[n][1] is not None:
+                    y += height
+                    layer += 1
+                    if path[n - 1][0] > path[n][0]:  # значит этот элемент левее --> вычитаем
+                        x -= self.branch_len
+                        self.draw_el(x, y, path[n][0], 1, height)
+                    else:  # значит этот элемент правее --> прибавляем
+                        x += self.branch_len
+                        self.draw_el(x, y, path[n][0], 0, height)
+                    self.branch_len //= 2
+                    height -= h
+                else:  # возвращаемся назад
+                    height += h
+                    layer -= 1
+                    y -= height
+                    self.branch_len *= 2
+                    if path[n - 1][0] < path[n][0]:
+                        x += self.branch_len
+                    else:
+                        x -= self.branch_len
 
 #диалог поиска
 class DialogSearch(QDialog):
@@ -119,14 +124,14 @@ class DialogSearch(QDialog):
         self.ui = uic.loadUi("forms/search.ui", self)
         self.ui.btn_find.clicked.connect(self.search)
 
-    #поиск элемента в дереве
-    def search(self):
-        link = self.facade.search_element_in_tree(self.ui.data_input.text())
-        if link is not None:
-            self.ui.label_info.setText(f"Данный элемент есть в дереве: {self.ui.data_input.text()}")
-            self.parent().draw_tree() #если такой элемент найден, то для дерева вызывается операция splay
-        else:
-            self.ui.label_info.setText(f"Данного элемента нет в дереве.")
+    # #поиск элемента в дереве
+    # def search(self):
+    #     link = self.facade.search_element_in_tree(self.ui.data_input.text())
+    #     if link is not None:
+    #         self.ui.label_info.setText(f"Данный элемент есть в дереве: {self.ui.data_input.text()}")
+    #         self.parent().draw_tree() #если такой элемент найден, то для дерева вызывается операция splay
+    #     else:
+    #         self.ui.label_info.setText(f"Данного элемента нет в дереве.")
 
 #диалог удаления
 class DialogDelete(QDialog):
@@ -183,7 +188,7 @@ class DialogInput(QDialog):
 
     #вставка элемента в дерево
     def add(self):
-        if self.ui.data_input.text() != '' and self.facade.search_element_in_tree(self.ui.data_input.text()) is None:
+        if self.ui.data_input.text() != '':
             try:
                 self.facade.insert_value(self.ui.data_input.text())
                 self.ui.label_info.setText(f"Вы ввели: {self.ui.data_input.text()}")
