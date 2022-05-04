@@ -7,13 +7,14 @@ class DataBase:
 
         self.db = sqlite3.connect(f"{name}")
         sql = self.db.cursor()
-        sql.execute("""CREATE TABLE IF NOT EXISTS AATree (val integer)""")
+        sql.execute("""CREATE TABLE IF NOT EXISTS AATree (val text)""")
         self.db.commit()
         sql.close()
 
     def get_from_db(self):
         sql = self.db.cursor()
         data = [value for value in sql.execute(f"SELECT * FROM AATree")]
+        sql.fetchall()
         if not data:
             logging.log(logging.INFO, ' база данных пуста')
         sql.close()
@@ -26,12 +27,12 @@ class DataBase:
 
     def db_insert(self, val):
         cur = self.db.cursor()
-        cur.execute(f"""INSERT INTO Tree VALUES ('{val[0]}')""")
+        cur.execute(f"""INSERT INTO AATree VALUES ('{val}')""")
         self.db.commit()
         cur.close()
 
     def save_all(self, path):
         self.del_all()
         for val in path:
-            if val[1] is not None:
-                self.db_insert(val[0])
+            if val is not None:
+                self.db_insert(val)
